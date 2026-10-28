@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ChaosLab — Autonomous Chaos Engineering</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Schibsted+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<style>
+:root{--bg:#efece6;--ink:#141414;--dim:rgba(20,20,20,.5);--ln:rgba(20,20,20,.09);--p:#EAF2F8;--d:#0D1117;--d2:#161B22;--g:#238636;--r:#DA3633;--a:#D29922;--b:#58A6FF;--v:#8957E5;--br:conic-gradient(from 200deg,#ffb347,#ff8a3d 18%,#ff5a5f 34%,#ff3d8b 50%,#ff5a5f 66%,#ff8a3d 82%,#ffb347)}
+*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--ink);font:15px 'Schibsted Grotesk',system-ui,sans-serif}
+.m,button,label,th{font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em;font-size:11px}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.gd{position:fixed;top:0;bottom:0;width:1px;background:var(--ln);z-index:1}
+nav{position:fixed;top:0;left:0;right:0;height:52px;z-index:20;background:rgba(239,236,230,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;padding:0 4%}
+.lg{display:flex;gap:10px;align-items:center;font-size:18px}.fl{width:22px;height:27px;background:radial-gradient(circle at 50% 70%,#ffb347,#ff5a5f 60%,#ff3d8b);border-radius:50% 50% 45% 45%/70% 70% 30% 30%;animation:fl 1.2s infinite alternate}
+@keyframes fl{to{transform:scale(1.1,.92) rotate(3deg);filter:hue-rotate(-12deg)}}
+nav .m{display:flex;gap:18px}nav a{color:var(--ink);text-decoration:none;cursor:pointer}
+.bt{border:1px solid var(--ink);background:none;color:var(--ink);padding:8px 14px;cursor:pointer;border-radius:2px}.bt:hover{background:var(--ink);color:#fff}
+section{position:relative;z-index:2}
+#hero{height:100vh}
+.pb{position:absolute;left:17%;top:30%;width:24.4%;min-width:260px}
+.pb .box{border:1px solid var(--ink);padding:14px;min-height:96px;line-height:1.45;font-size:11px;background:rgba(239,236,230,.7)}
+.cr{display:inline-block;width:6px;height:11px;background:var(--ink);animation:bk 1s steps(1) infinite}@keyframes bk{50%{opacity:0}}
+.hl{position:absolute;left:4%;bottom:12%}
+.hl h1{font-weight:400;font-size:clamp(42px,5.25vw,92px);line-height:1.05}
+.hl h1 span{display:table;padding:2px 18px;border:2px solid transparent;background:linear-gradient(var(--bg),var(--bg)) padding-box,var(--br) border-box;margin-top:6px}
+.sub{position:absolute;left:calc(62% + 18px);bottom:4%;max-width:30%;font-size:14.5px}
+#con{background:var(--p);padding:80px 3% 60px;margin:0 2%;border-radius:6px}
+.shell{background:var(--d);color:#c9d1d9;border-radius:12px;display:grid;grid-template-columns:230px 1fr;overflow:hidden;box-shadow:0 30px 80px rgba(13,17,23,.35)}
+.sb{background:var(--d2);padding:18px 12px;border-right:1px solid #30363d}.sb .lg{color:#fff;margin-bottom:16px}
+.sb a{display:block;padding:9px 10px;border-radius:6px;color:#8b949e;cursor:pointer;font-size:13px}.sb a:hover,.sb a.on{background:#21262d;color:#fff}
+.mn{padding:22px;min-width:0}.mn h2{font-size:28px;font-weight:500;color:#fff}.mn h2 b{color:#2ea043;font-weight:500}
+.mn p.s{color:#8b949e;margin:8px 0 18px;font-size:13px;max-width:780px}
+.ct{display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:#0D1117;border:1px solid #30363d;border-radius:8px;padding:12px;margin-bottom:16px}
+.ct input[type=range]{accent-color:var(--a)}
+.ab{background:var(--r);color:#fff;border:0;padding:10px 14px;border-radius:6px;cursor:pointer;margin-left:auto;animation:pu 2s infinite}@keyframes pu{50%{box-shadow:0 0 18px var(--r)}}
+.bd{padding:3px 8px;border-radius:99px;border:1px solid #30363d;font-size:10px}.ok{color:#3fb950;border-color:#238636}.vi{color:#a78bfa;border-color:var(--v)}
+.gr{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:16px}
+.cd{background:rgba(22,27,34,.8);border:1px solid #30363d;border-radius:10px;padding:16px;backdrop-filter:blur(8px);transition:.25s}.cd:hover{border-color:var(--b);transform:translateY(-3px)}
+.cd h3{font-size:15px;color:#fff;font-weight:500}.cd p{color:#8b949e;font-size:12.5px;margin:6px 0 12px;min-height:34px}
+.cd .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.run{background:var(--g);color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer}.run.v{background:var(--v)}.run:disabled{opacity:.5}
+.tg{color:#8b949e;display:flex;gap:6px;align-items:center;cursor:pointer;text-transform:none;font-size:11px}
+.pn{background:#0D1117;border:1px solid #30363d;border-radius:8px;padding:14px}.pn h4{font-size:12px;color:#8b949e;margin-bottom:8px;font-family:'IBM Plex Mono';text-transform:uppercase;letter-spacing:.05em;font-weight:400}
+canvas.ch{width:100%;height:170px;display:block}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th{text-align:left;color:#8b949e;padding:8px;border-bottom:1px solid #30363d;font-weight:400}td{padding:9px 8px;border-bottom:1px solid #21262d;vertical-align:top}
+.st{padding:2px 8px;border-radius:99px;font-size:11px}.st.c{background:rgba(35,134,54,.2);color:#3fb950}.st.f{background:rgba(218,54,51,.2);color:#f85149}.st.w{background:rgba(210,153,34,.2);color:var(--a)}
+.nd{display:inline-block;width:46px;height:46px;border-radius:50%;border:2px solid var(--g);text-align:center;line-height:42px;margin:4px;font-size:11px}.nd.L{border-color:var(--a);box-shadow:0 0 12px var(--a)}.nd.x{border-color:var(--r);opacity:.5}
+#log{height:150px;overflow:auto;font:11px 'IBM Plex Mono';color:#7ee787}
+#end{min-height:100vh;display:flex;align-items:center;padding:0 4% 0 17%}
+#end h2{font-weight:400;font-size:clamp(30px,3.05vw,54px);line-height:1.15}#end h2 span{border:1px solid var(--ink);padding:0 14px;border-radius:12px;display:inline-block}
+.tk{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0;max-width:520px}.tk span{border:1px solid var(--ink);padding:6px 10px;background:rgba(239,236,230,.8)}
+#fab{position:fixed;right:22px;bottom:22px;z-index:50;background:#0D1117;color:#fff;border:1px solid var(--b);padding:14px 18px;border-radius:99px;cursor:pointer;box-shadow:0 0 24px rgba(88,166,255,.45)}
+#dr{position:fixed;right:18px;bottom:18px;width:min(430px,calc(100vw - 36px));height:min(640px,82vh);background:rgba(13,17,23,.96);color:#c9d1d9;border:1px solid #30363d;border-radius:14px;z-index:60;display:flex;flex-direction:column;transform:translateY(120%);transition:.5s cubic-bezier(.2,.7,.2,1);backdrop-filter:blur(14px)}
+#dr.o{transform:none}#dr header{padding:12px 14px;border-bottom:1px solid #30363d;display:flex;justify-content:space-between;align-items:center;color:#fff}
+#ky{padding:8px 12px;border-bottom:1px solid #30363d;display:flex;gap:6px;flex-wrap:wrap;font-size:11px}#ky input{flex:1;min-width:140px;background:#010409;border:1px solid #30363d;color:#c9d1d9;padding:6px;border-radius:6px;font:11px 'IBM Plex Mono'}
+#ms{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px;font-size:13px}
+.u,.a{padding:9px 11px;border-radius:10px;max-width:92%;line-height:1.45;white-space:pre-wrap;word-break:break-word}.u{background:#1f6feb;align-self:flex-end}.a{background:#161B22;border:1px solid #30363d}
+.tb{display:inline-block;font:10px 'IBM Plex Mono';padding:2px 7px;margin:2px 3px 2px 0;border-radius:4px;background:rgba(210,153,34,.15);color:var(--a)}.tb.r{background:rgba(88,166,255,.15);color:var(--b)}.tb.z{background:rgba(137,87,229,.2);color:#a78bfa}
+pre{background:#010409;padding:8px;border-radius:6px;overflow:auto;font:11px 'IBM Plex Mono';margin:6px 0;color:#7ee787}
+#fm{display:flex;gap:6px;padding:10px;border-top:1px solid #30363d}#fm input{flex:1;background:#010409;border:1px solid #30363d;color:#fff;padding:9px;border-radius:8px}
+#zt{padding:80px 4% 60px 17%;position:relative;z-index:2}#zt h2{font-weight:400;font-size:clamp(28px,3vw,50px);margin-bottom:22px}#zt .cd{background:#0D1117}#zt .cd h3:before{content:'● ';color:#3fb950}footer{position:relative;z-index:2;background:#0D1117;color:#8b949e;padding:34px 4% 30px 17%;display:flex;gap:40px;flex-wrap:wrap;justify-content:space-between;font-size:13px}footer b{color:#fff;display:block;margin-bottom:8px}footer a{display:block;color:#8b949e;text-decoration:none;margin:4px 0}footer a:hover{color:#58A6FF}@media(max-width:900px){#zt,footer{padding-left:16px;padding-right:16px}}
+@media(max-width:900px){.gd,nav .m,.sb,.sub{display:none}.shell{grid-template-columns:1fr}.pb{left:5%;width:90%;top:18%}.hl{left:16px}.hl h1 span{background:rgba(239,236,230,.88)}#end{padding:0 16px}#con{margin:0}}
+</style></head><body>
+<canvas id="bg"></canvas><div class="gd" style="left:17%"></div><div class="gd" style="left:50%"></div><div class="gd" style="left:83%"></div>
+<nav><div class="lg"><i class="fl"></i>CHAOSLAB</div><div class="m"><a data-go="con">Experiments</a><a data-go="tel">Telemetry</a><a data-go="rag">RAG KB</a><a data-go="sec">eBPF Security</a><a data-go="end">Stack</a></div><button class="bt" id="ln">•• Launch OpsAgent</button></nav>
+<section id="hero">
+<div class="pb"><div class="m" style="font:700 36px Georgia;width:42px;height:42px;border:1px solid var(--ink);text-align:center;line-height:50px;background:var(--bg)">“</div><div class="box m"><span id="ty"></span><span class="cr"></span></div><div class="m" id="nx" style="opacity:.3;margin-top:8px;font-size:11px"></div></div>
+<div class="hl"><div class="m" style="margin-bottom:10px;font-size:12px">Unleash the power of</div><h1><span>Chaos</span><span>Engineering</span></h1></div>
+<div class="sub">Inject controlled failures, watch eBPF kernel telemetry, let a CNN spot anomalies and an agent heal your cluster — autonomously.</div>
+</section>
+<section id="con"><div class="shell">
+<aside class="sb"><div class="lg"><i class="fl"></i>ChaosLab</div>
+<a class="on" data-go="con">🧪 Experiments</a><a id="cp">🤖 Agentic Ops Copilot</a><a data-go="rag">📚 RAG Incident KB</a><a data-go="tel">👁️ CNN Topology Vision</a><a data-go="tel">🐳 Targets &amp; Clusters</a><a data-go="tel">📊 Telemetry &amp; Results</a><a data-go="sec">🔒 Zero-Trust &amp; eBPF</a><a data-go="sec">⚡ Raft Consensus Nodes</a><a data-go="end">📅 Schedules &amp; Settings</a></aside>
+<main class="mn"><h2>Chaos Testing <b>Platform</b></h2>
+<p class="s">Inject controlled failures into containerized microservices, monitor real-time eBPF kernel telemetry, detect visual grid anomalies via CNN, and leverage Agentic AI with RAG for autonomous root-cause analysis and auto-remediation.</p>
+<div class="ct"><label>Blast radius <input type="range" id="br" min="1" max="50" value="10"> <b id="bv">10%</b></label><span class="bd ok">📱 Termux WS bridge: connected</span><span class="bd ok">Slack ●</span><span class="bd ok">PagerDuty ●</span><span class="bd ok">GitHub Actions ●</span><button class="ab" id="ab">⛔ Emergency Abort</button></div>
+<div class="gr" id="cards"></div>
+<div id="tel" class="gr" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))"><div class="pn"><h4>Latency · before vs during chaos</h4><canvas class="ch" id="c1"></canvas></div><div class="pn"><h4>Error rate · 99.9% SLA line</h4><canvas class="ch" id="c2"></canvas></div><div class="pn"><h4>CNN topology heatmap</h4><canvas class="ch" id="c3"></canvas><div class="m" style="font-size:10px;margin-top:6px"><span class="ok">CNN accuracy 99.1%</span> · <span id="va" style="color:var(--a)">Alert: bottleneck at db-replica-2</span></div></div></div>
+<div class="pn" id="rag" style="margin-bottom:16px;overflow:auto"><h4>RAG experiment results &amp; post-mortems</h4><table><thead><tr><th>Experiment<th>Target<th>Status<th>Impact<th>MTTR<th>RAG RCA<th>Started</thead><tbody id="tb"></tbody></table></div>
+<div class="gr" id="sec" style="grid-template-columns:1fr 1fr"><div class="pn"><h4>Raft nodes</h4><div id="rf"></div></div><div class="pn"><h4>eBPF / zero-trust stream</h4><div id="log"></div></div></div>
+</main></div></section>
+<section id="zt"><div class="m">·· Security architecture <span id="hs" class="bd ok" style="margin-left:10px">API: checking…</span></div><h2>Zero-trust by design.</h2><div class="gr"><div class="cd"><h3>Server-side keys</h3><p>Groq & Gemini keys live in Vercel env vars behind /api/chat. Browser never sees them.</p></div><div class="cd"><h3>Auto model detection</h3><p>Backend lists provider models hourly and picks the best, with Groq→Gemini failover.</p></div><div class="cd"><h3>Strict CSP + HSTS</h3><p>Locked-down headers: CSP, HSTS preload, nosniff, frame-deny, COOP, Permissions-Policy.</p></div><div class="cd"><h3>Rate limiting & validation</h3><p>20 req/min/IP, 2000-char cap, trimmed context, blast radius clamped 1–50%.</p></div><div class="cd"><h3>Zero-trust eBPF policy</h3><p>Deny-by-default execve and egress; compromised pods quarantined automatically.</p></div><div class="cd"><h3>Human-in-the-loop</h3><p>Destructive actions need approval; Emergency Abort restores cluster state instantly.</p></div></div></section>
+<section id="end"><div><div class="m">·· ChaosLab OpsAgent</div><h2><span>Break things</span><br>on purpose.</h2><div class="tk m"><span>Kubernetes</span><span>Go Operator</span><span>Prometheus</span><span>Grafana</span><span>MongoDB</span><span>Docker</span><span>LangGraph</span><span>RAG Vector</span><span>CNN PyTorch</span><span>eBPF</span><span>Raft</span></div><button class="bt" id="l2">Talk to OpsAgent ↗</button><div class="m" style="margin-top:50px;opacity:.5">ChaosLab · 2026 · Nikhil Chary Sriramoju</div></div></section>
+<footer><div><b>ChaosLab</b>Autonomous chaos engineering,<br>eBPF observability &amp; zero-trust.<br><br>© 2026 Nikhil Chary Sriramoju</div><div><b>Platform</b><a data-go="con">Experiments</a><a data-go="tel">Telemetry</a><a data-go="rag">RAG Knowledge Base</a><a data-go="sec">Raft &amp; eBPF</a></div><div><b>Security</b><a href="/.well-known/security.txt">security.txt</a><a href="/api/health">API health</a><a data-go="zt">Security model</a></div><div><b>Connect</b><a href="https://github.com/Nikhil-creat">GitHub</a><a href="https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a">LinkedIn</a></div></footer>
+<button id="fab">🤖 OpsAgent</button>
+<div id="dr"><header><div><b>ChaosLab OpsAgent</b><div class="m" style="font-size:9px;color:#8b949e" id="md">Agentic AI · RAG · Tool calling — no key: local mode</div></div><button class="bt" style="color:#fff;border-color:#30363d" id="x">×</button></header>
+<div id="ky"><input id="k" type="password" placeholder="Paste free Groq (gsk_…) or Gemini (AIza…) key"><button class="bt" style="color:#fff;border-color:#30363d" id="sv">Detect</button></div>
+<div id="ms"></div><form id="fm"><input id="in" placeholder="Simulate 500ms delay on redis for 2 min…" autocomplete="off"><button class="bt" style="color:#fff;border-color:#30363d" type="button" id="mic">🎤</button><button class="run">Send</button></form></div>
+<script type="module">
+import * as THREE from 'three';import{RoundedBoxGeometry as RB}from 'three/addons/geometries/RoundedBoxGeometry.js';import{RoomEnvironment}from 'three/addons/environments/RoomEnvironment.js';
+const $=s=>document.querySelector(s),clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+// ---------- typing prompt
+const P=["Inject 500ms latency on all redis containers for 2 minutes.","Kill 10% of api-service pods and auto-heal.","Why did worker-node-3 fail with OOM?","Simulate container escape and verify eBPF blocks it."];let pi=0,ci=0,del=0;
+(function t(){const s=P[pi];$('#nx').textContent=P[(pi+1)%P.length];if(!del){$('#ty').textContent=s.slice(0,++ci);if(ci==s.length){del=1;return setTimeout(t,2600)}setTimeout(t,38)}else{ci=Math.max(0,ci-2);$('#ty').textContent=s.slice(0,ci);if(!ci){del=0;pi=(pi+1)%P.length;return setTimeout(t,250)}setTimeout(t,14)}})();
+document.querySelectorAll('[data-go]').forEach(a=>a.onclick=()=>{document.getElementById(a.dataset.go).scrollIntoView({behavior:'smooth'})});
+// ---------- three.js robot
+const cv=$('#bg'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});R.setPixelRatio(Math.min(2,devicePixelRatio));R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.05;R.shadowMap.enabled=true;
+const S=new THREE.Scene(),cam=new THREE.PerspectiveCamera(30,1,.1,100);S.environment=new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(),.04).texture;S.environmentIntensity=.9;
+S.add(new THREE.HemisphereLight(0xfff6ee,0xd9d2c8,.7));const k=new THREE.DirectionalLight(0xfff3e6,1.7);k.position.set(-3,5,4);k.castShadow=true;S.add(k);const rm=new THREE.DirectionalLight(0xfff0e6,1.2);rm.position.set(4,2,-4);S.add(rm);const pl=new THREE.PointLight(0xff9a6a,2.2,6);pl.position.set(-3.2,1.2,.6);S.add(pl);
+const M=(c,r=.4,m=0)=>new THREE.MeshPhysicalMaterial({color:c,roughness:r,metalness:m,clearcoat:.45,clearcoatRoughness:.3}),sh=M(0xeeebe6,.38),sl=M(0xf8f6f2,.34),dk=M(0x1b1b1f,.55,.3),pd=M(0x2a2928,.9);
+const bx=(w,h,d,r,m,x,y,z,p)=>{const o=new THREE.Mesh(new RB(w,h,d,4,r),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;p.add(o);return o},ball=(r,m,x,y,z,p)=>{const o=new THREE.Mesh(new THREE.SphereGeometry(r,24,16),m);o.position.set(x,y,z);p.add(o);return o};
+const rg=document.createElement('canvas');rg.width=rg.height=256;{const g=rg.getContext('2d').createConicGradient(0,128,128);['#ff3d8b','#ff5a5f','#ff8a3d','#ffb347','#ff8a3d','#ff5a5f','#ff3d8b'].forEach((c,i)=>g.addColorStop(i/6,c));const c=rg.getContext('2d');c.fillStyle=g;c.fillRect(0,0,256,256)}
+const rt=new THREE.CanvasTexture(rg);rt.colorSpace=THREE.SRGBColorSpace;const ringM=new THREE.MeshPhysicalMaterial({map:rt,emissiveMap:rt,emissive:0xffffff,emissiveIntensity:.22,roughness:.5,clearcoat:.35});
+const root=new THREE.Group(),body=new THREE.Group(),head=new THREE.Group();S.add(root);root.add(body);
+bx(1.22,1.12,.92,.24,sh,0,0,0,body);bx(1,.2,.8,.08,sl,0,.55,0,body);bx(.8,.3,.7,.1,dk,0,-.62,0,body);
+[[0xff8a3d,-.25],[0xff5a5f,0],[0xff3d8b,.25]].forEach(([c,x])=>{const l=ball(.045,new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:2}),x,.22,.47,body)});
+[-.2,.2].forEach(x=>bx(.1,.34,.04,.02,dk,x,-.12,.47,body));
+const arms=[-1,1].map(s=>{ball(.17,dk,s*.7,.4,0,body);const u=new THREE.Group();u.position.set(s*.7,.4,0);u.rotation.z=s*.16;body.add(u);bx(.24,.62,.26,.1,sh,0,-.32,0,u);ball(.14,dk,0,-.66,0,u);const f=new THREE.Group();f.position.y=-.66;f.rotation.x=-.35;u.add(f);bx(.24,.5,.26,.1,sh,0,-.28,0,f);bx(.26,.2,.28,.08,sl,0,-.6,0,f);return[u,f,s]});
+[-1,1].forEach(s=>{ball(.15,dk,s*.35,-.7,0,body);bx(.34,.7,.36,.12,sh,s*.35,-1.1,0,body);bx(.3,.1,.3,.04,dk,s*.35,-1.5,0,body);bx(.4,.18,.55,.08,sl,s*.35,-1.62,.08,body)});
+const ped=bx(1.7,1.6,1.7,.04,pd,0,-2.5,0,root);body.position.y=.15;
+head.position.y=1.0;body.add(head);bx(.3,.2,.3,.05,dk,0,.65,0,body);
+bx(1.5,1.42,1.3,.2,sh,0,.78,0,head);bx(1.28,1.14,.9,.14,dk,0,.78,-.5,head);
+const fr=bx(1.38,1.3,.1,.28,ringM,0,.78,.62,head);bx(1.1,1.04,.06,.2,sl,0,.78,.68,head);
+const fc=document.createElement('canvas');fc.width=fc.height=256;const fx=fc.getContext('2d'),ft=new THREE.CanvasTexture(fc);ft.colorSpace=THREE.SRGBColorSpace;
+const scr=bx(.9,.84,.04,.1,new THREE.MeshPhysicalMaterial({color:0x000000,emissive:0xffffff,emissiveMap:ft,emissiveIntensity:1.6,clearcoat:1,roughness:.1}),0,.78,.73,head);
+[-1,1].forEach(s=>{const e=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.2,24),sh);e.rotation.z=Math.PI/2;e.position.set(s*.8,.78,0);head.add(e)});
+let think=0,blink=0,nb=2;function face(t){fx.fillStyle='#000';fx.fillRect(0,0,256,256);fx.fillStyle='#fff';fx.shadowColor='#fff';fx.shadowBlur=14;if(t>nb){blink=t;nb=t+2.5+Math.random()*3}const sq=t-blink<.18?.1+Math.abs(Math.sin((t-blink)/.18*Math.PI))*-.9+.9*0+.0:1;const sy=t-blink<.18?Math.max(.1,Math.abs(1-Math.sin((t-blink)/.18*Math.PI))):1;
+ if(think){[88,168].forEach((x,i)=>{fx.beginPath();fx.arc(x-6+i*0+20,130+Math.sin(t*6+i)*10,9,0,7);fx.fill()});fx.beginPath();fx.arc(128,130,0,0,7)}else[[98,131],[158,126]].forEach(([x,y])=>{fx.beginPath();fx.ellipse(x,y,15,19*sy,0,0,7);fx.fill()});ft.needsUpdate=true}
+const mouse={x:0,y:0,sx:0,sy:0};addEventListener('pointermove',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight*2-1)});
+function rs(){R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}rs();addEventListener('resize',rs);
+const e3=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,L=(a,b,t)=>a+(b-a)*t;let sp=0;const look=new THREE.Vector3();
+R.setAnimationLoop(()=>{const t=performance.now()/1e3;face(t);const tg=clamp(scrollY/innerHeight,0,1);sp+=(tg-sp)*.08;mouse.sx+=(mouse.x-mouse.sx)*.06;mouse.sy+=(mouse.y-mouse.sy)*.06;const q=e3(sp),m=innerWidth<900?1.25:1;
+cam.position.set(-mouse.sx*.25,L(1.1,1.95,q)-mouse.sy*.1,L(11.6,6.9,q)*m);look.set(0,L(.55,1.72,q),0);cam.lookAt(look);
+root.position.x=L(innerWidth<900?0:2.1,1.4,q);root.rotation.y=L(-.42,-.2,q)+mouse.sx*.12;body.position.y=.15+Math.sin(t*1.4)*.02;
+head.rotation.set(L(.16,.04,q)+mouse.sy*.18+Math.sin(t*.9)*.02,L(-.6,-.06,q)+mouse.sx*.45,L(.22,0,q)+Math.sin(t*.7)*.02);
+arms.forEach(([u,f,s])=>{u.rotation.x=Math.sin(1.4*t+s)*.05;f.rotation.x=-.35+Math.sin(1.4*t+s)*.06});R.render(S,cam)});
+// ---------- experiments
+const EX=[["Pod Failure","Terminate random pods and container instances","Agentic Auto-Heal","api-service (Docker)","Error rate ↑ 12%","Auto-restarted via Kubernetes operator. Zero data loss.","c"],["Network Latency","Inject packet loss, latency spikes & split-brain chaos","Raft Re-election","payment-service","Latency ↑ 250ms","eBPF rate limiter triggered. Routed traffic to fallback edge node.","c"],["CPU Stress","Simulate high CPU compute, thermal throttling & RAM leaks","Auto-Scaler","worker-node-3","Error rate ↑ 45%","Out of Memory (OOM) crash. Recommending heap size increase to 4GB.","f"],["Disk I/O","Increase disk read/write latency & induce file lockouts","","db-service (Mongo Container)","Latency ↑ 120ms","Raft consensus failover executed. Secondary replica promoted.","c"],["eBPF Attack Sim","Simulate container escape, rogue root access & unauthorized egress","","payments-pod","Blocked 3 syscalls","Zero-Trust policy denied execve + egress. Pod quarantined.","c"],["Chaos Sweep","Run continuous acoustic & network frequency stress sweeps","","edge-mesh","No drift","Sweep complete. Frequency diagnostics clean.","c"]];
+const rows=[[0,"Oct 28, 14:32","42s"],[1,"Oct 28, 12:10","1m 18s"],[2,"Oct 28, 10:05","N/A"],[3,"Oct 28, 08:21","55s"]];let chaos=0,ab=0;
+$('#cards').innerHTML=EX.map((e,i)=>`<div class="cd"><h3>${e[0]}</h3><p>${e[1]}</p><div class="row"><button class="run ${i==4?'v':''}" data-i="${i}">${i==4?'Simulate Exploit':i==5?'Start Sweep':'Run Experiment'}</button>${e[2]?`<label class="tg"><input type="checkbox" checked>${e[2]}</label>`:`<span class="bd ${i==4?'vi':'ok'}">${i==4?'Zero-Trust Active':'Clean'}</span>`}</div></div>`).join('');
+const row=(r)=>{const e=EX[r[0]];return`<tr><td>${e[0]}<td>${e[3]}<td><span class="st ${e[6]}">${e[6]=='c'?'Completed':'Failed'}</span><td>${e[4]}<td>${r[2]}<td><b>RAG:</b> <i>${e[5]}</i><td>${r[1]}</tr>`};
+const draw=()=>$('#tb').innerHTML=rows.map(row).join('');draw();
+function lg(m,c='#7ee787'){const l=$('#log');l.innerHTML+=`<div style="color:${c}">[${new Date().toLocaleTimeString()}] ${m}</div>`;l.scrollTop=1e9}
+lg('eBPF probes attached: execve, connect, openat');lg('Zero-trust policy v14 enforced');
+function run(i){if(ab)return;const mx=$('#br').value;chaos++;lg(`▶ ${EX[i][0]} on ${EX[i][3]} · blast ≤${mx}%`,i==4?'#a78bfa':'#d29922');const n=nodes.findIndex(x=>x==1);if(i==1||i==3){nodes[0]=2;nodes[1]=1;rf()}
+setTimeout(()=>{chaos=Math.max(0,chaos-1);const d=new Date();rows.unshift([i,`Oct 28, ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`,['42s','1m 02s','N/A','55s','8s','31s'][i]]);draw();lg(`✔ ${EX[i][0]} recovered — RAG RCA stored`);nodes[0]=0;rf()},3500)}
+$('#cards').onclick=e=>{const b=e.target.closest('button');if(b)run(+b.dataset.i)};
+$('#br').oninput=e=>$('#bv').textContent=e.target.value+'%';
+$('#ab').onclick=()=>{ab=1;chaos=0;lg('⛔ EMERGENCY ABORT — all experiments killed, cluster restored','#f85149');nodes.fill(0);nodes[1]=1;rf();setTimeout(()=>ab=0,1500)};
+let nodes=[0,1,0,0,0];function rf(){$('#rf').innerHTML=nodes.map((s,i)=>`<span class="nd ${s==1?'L':s==2?'x':''}">N${i+1}${s==1?'★':''}</span>`).join('')+'<div class="m" style="font-size:10px;margin-top:6px;color:#8b949e">★ leader · term 7</div>'}rf();
+// ---------- charts
+const D1=Array(40).fill(0).map(()=>40),D2=Array(40).fill(0).map(()=>40),E=Array(40).fill(.3);
+function ln(c,s,col,mn,mx,dash){c.strokeStyle=col;c.setLineDash(dash||[]);c.beginPath();s.forEach((v,i)=>{const x=i/(s.length-1)*c.canvas.width,y=c.canvas.height-(v-mn)/(mx-mn)*c.canvas.height;i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke()}
+function cvs(id){const c=$(id);c.width=c.clientWidth*2;c.height=340;const x=c.getContext('2d');x.lineWidth=3;return x}
+setInterval(()=>{D1.push(40+Math.random()*10);D1.shift();D2.push(chaos?120+Math.random()*160:45+Math.random()*12);D2.shift();E.push(chaos?.4+Math.random()*1.6:.05+Math.random()*.1);E.shift();
+let x=cvs('#c1');ln(x,D1,'#58A6FF',0,300);ln(x,D2,'#DA3633',0,300);x=cvs('#c2');ln(x,E,'#DA3633',0,2.2);ln(x,Array(40).fill(.1),'#D29922',0,2.2,[10,8]);
+x=cvs('#c3');const W=x.canvas.width,H=340,pts=[[.15,.3],[.35,.6],[.5,.25],[.65,.7],[.85,.4],[.5,.8]],hot=chaos?3:5;x.lineWidth=2;pts.forEach((p,i)=>{pts.forEach((q,j)=>{if(j>i&&(i+j)%2){x.strokeStyle='#30363d';x.beginPath();x.moveTo(p[0]*W,p[1]*H);x.lineTo(q[0]*W,q[1]*H);x.stroke()}})});
+pts.forEach((p,i)=>{const h=i==hot,g=x.createRadialGradient(p[0]*W,p[1]*H,2,p[0]*W,p[1]*H,h?70:36);g.addColorStop(0,h?'rgba(218,54,51,.9)':'rgba(35,134,54,.7)');g.addColorStop(1,'transparent');x.fillStyle=g;x.fillRect(0,0,W,H);x.fillStyle='#fff';x.beginPath();x.arc(p[0]*W,p[1]*H,6,0,7);x.fill()});
+$('#va').textContent=chaos?'Alert: cascading hotspot at payment-service':'Alert: bottleneck at db-replica-2'},900);
+// ---------- agent
+const KB=[["redis latency delay cache","Runbook: use tc netem / eBPF delay on redis pods, cap blast radius ≤10%, verify circuit breaker opens."],["oom memory heap crash","Past incident INC-212: worker-node-3 OOM. Fix: raise heap to 4GB, set memory limits & HPA."],["pod kill restart","Operator restarts pods via ReplicaSet; confirm PDB minAvailable ≥ 80%."],["escape root egress security ebpf","Zero-trust: deny execve from non-whitelisted binaries; block egress except mesh CIDR; quarantine pod."],["disk io mongo failover raft","Mongo secondary promoted via raft election; check replica lag <5s."]];
+const rag=q=>{const w=q.toLowerCase().split(/\W+/);return KB.map(k=>[k[1],k[0].split(' ').filter(x=>w.includes(x)).length]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]).slice(0,2).map(x=>x[0])};
+const SYS="You are ChaosLab OpsAgent, an expert SRE chaos-engineering assistant. Be concise. When asked to run an experiment, reply with a YAML chaos spec in a code block, a CLI command, and a risk note. Always respect the blast-radius limit. Use the provided runbook context.";
+let keys=JSON.parse(localStorage.getItem('cl_keys')||'{}'),mods=JSON.parse(localStorage.getItem('cl_mods')||'{}'),hist=[];
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fmt=s=>esc(s).replace(/```\w*\n?([\s\S]*?)```/g,'<pre>$1</pre>');
+function add(c,h){const d=document.createElement('div');d.className=c;d.innerHTML=h;$('#ms').append(d);$('#ms').scrollTop=1e9;return d}
+async function detect(key){if(key.startsWith('gsk_')){const r=await fetch('https://api.groq.com/openai/v1/models',{headers:{Authorization:'Bearer '+key}});if(!r.ok)throw 0;const ids=(await r.json()).data.map(m=>m.id).filter(i=>!/whisper|guard|tts|prompt/.test(i));const pf=['llama-3.3-70b-versatile','llama-3.1-70b-versatile','openai/gpt-oss-120b','llama-3.1-8b-instant'];keys.groq=key;mods.groq=pf.find(p=>ids.includes(p))||ids[0]}
+else if(key.startsWith('AIza')){const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+key);if(!r.ok)throw 0;const ids=(await r.json()).models.filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/','')).filter(n=>/gemini/.test(n)&&!/(embed|vision|tts|image|live|thinking-exp)/.test(n));keys.gemini=key;mods.gemini=ids.find(n=>/flash/.test(n)&&!/(lite|8b|preview|exp)/.test(n))||ids.find(n=>/flash/.test(n))||ids[0]}else throw 0;
+localStorage.setItem('cl_keys',JSON.stringify(keys));localStorage.setItem('cl_mods',JSON.stringify(mods));label()}
+function label(){const p=Object.keys(mods).map(k=>`${k}: ${mods[k]}`).join(' | ');$('#md').textContent=p?'Auto-detected → '+p:'Agentic AI · RAG · Tool calling — no key: local mode'}label();
+$('#sv').onclick=async()=>{const k=$('#k').value.trim();try{await detect(k);$('#k').value='';add('a','✅ Key accepted. Model auto-selected.')}catch(e){add('a','❌ Could not detect/validate that key (Groq keys start gsk_, Gemini AIza).')}};
+async function llm(q,ctx){try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:hist.slice(-8),context:ctx,blast:+$('#br').value})});if(r.ok){const j=await r.json();$('#md').textContent='Secure proxy → '+j.provider+': '+j.model;return j.reply}}catch(e){}const msgs=[{role:'system',content:SYS+'\nRunbook context:\n'+ctx.join('\n')+'\nBlast radius: '+$('#br').value+'%'},...hist.slice(-8),{role:'user',content:q}];
+ if(keys.groq&&mods.groq)try{const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+keys.groq},body:JSON.stringify({model:mods.groq,messages:msgs,temperature:.4})});if(r.ok)return(await r.json()).choices[0].message.content}catch(e){}
+ if(keys.gemini&&mods.gemini)try{const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${mods.gemini}:generateContent?key=${keys.gemini}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:msgs[0].content}]},contents:msgs.slice(1).map(m=>({role:m.role=='user'?'user':'model',parts:[{text:m.content}]}))})});if(r.ok)return(await r.json()).candidates[0].content.parts[0].text}catch(e){}
+ return null}
+function local(q){const ms=(q.match(/(\d+)\s*ms/)||[])[1]||200,tg=(q.match(/redis|api|payment|mongo|db|worker/i)||['api'])[0].toLowerCase(),du=(q.match(/(\d+)\s*min/)||[])[1]||2;
+ return`Plan ready (local mode — add a free Groq/Gemini key for full reasoning).\n\`\`\`yaml\napiVersion: chaoslab.io/v1\nkind: NetworkChaos\nspec:\n  target: ${tg}\n  action: delay\n  delay: ${ms}ms\n  duration: ${du}m\n  maxAffected: ${$('#br').value}%\n  notify: slack\n\`\`\`\nCLI: chaosctl apply -f spec.yaml --abort-on-sla-breach`}
+$('#fm').onsubmit=async e=>{e.preventDefault();const q=$('#in').value.trim();if(!q)return;$('#in').value='';add('u',esc(q));think=1;const ctx=rag(q);let b='<span class="tb r">[RAG Search: query_runbooks()]</span>';
+ if(/delay|latenc|network|partition/i.test(q))b+='<span class="tb">[Tool Called: injected_ebpf_packet_delay()]</span>';if(/kill|pod|terminat/i.test(q))b+='<span class="tb">[Action Required: Approve Pod Termination]</span>';if(/escape|root|egress|exploit/i.test(q))b+='<span class="tb z">[Tool Called: ebpf_policy_check()]</span>';
+ const m=add('a',b+'<br>…');let ans=await llm(q,ctx);if(!ans)ans=local(q);hist.push({role:'user',content:q},{role:'assistant',content:ans});m.innerHTML=b+'<br>'+fmt(ans);think=0;
+ const i=/pod|kill/i.test(q)?0:/delay|latenc|network/i.test(q)?1:/cpu|memory|oom/i.test(q)?2:/disk|io/i.test(q)?3:/escape|exploit|root/i.test(q)?4:-1;if(i>=0)run(i)};
+const op=v=>$('#dr').classList.toggle('o',v);$('#fab').onclick=$('#ln').onclick=$('#l2').onclick=$('#cp').onclick=()=>op(1);$('#x').onclick=()=>op(0);
+add('a','<span class="tb r">[Agent online]</span><br>Hi — I\'m OpsAgent. Try: <i>Simulate a 500ms network delay on all Redis cache containers for 2 minutes.</i> Paste a free Groq or Gemini key above and I\'ll auto-detect the best model.');
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;$('#mic').onclick=()=>{if(!SR)return add('a','Voice input not supported in this browser.');const r=new SR();r.onresult=e=>{$('#in').value=e.results[0][0].transcript};r.start()};
+fetch('/api/health').then(r=>r.json()).then(j=>{$('#hs').textContent='API online · '+(j.providers.join('+')||'no keys set')}).catch(()=>{$('#hs').textContent='API offline · BYOK mode';$('#hs').className='bd vi'});
+document.querySelectorAll('footer [data-go]').forEach(a=>a.onclick=()=>document.getElementById(a.dataset.go).scrollIntoView({behavior:'smooth'}));
+</script></body></html>

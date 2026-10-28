@@ -1,0 +1,1 @@
+{ "name": "chaoslab", "version": "2.0.0", "private": true, "description": "ChaosLab - agentic chaos engineering, eBPF observability & zero-trust platform", "author": "Nikhil Chary Sriramoju", "engines": { "node": ">=18" } }
