@@ -26,3 +26,8 @@ Password prompt = a Personal Access Token (GitHub → Settings → Developer set
 5. Changed a variable? Redeploy. Never commit `.env`; rotate any key you pasted in public.
 
 Local test: `npx vercel dev`.
+
+## v3 additions
+Endpoints: `/api/chat` (AI proxy) · `/api/experiments` (GET catalog+audit, POST run) · `/api/contact` (validated form, optional Slack via `SLACK_WEBHOOK_URL`) · `/api/health` · `/api/metrics` (Prometheus).
+Actions: CI (syntax/JSON checks), gitleaks secret scan, CodeQL SAST, Dependabot. Enable them under repo → Actions.
+Update an existing clone: unzip over the folder with `unzip -o`, then `git add . && git commit -m "v3" && git push`.
